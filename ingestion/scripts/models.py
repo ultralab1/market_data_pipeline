@@ -18,7 +18,7 @@ class CryptoPrices(SQLModel, table=True):
     symbol: str | None = Field(default=None, primary_key=True)
     timestamp: datetime | None = Field(default=None, primary_key=True)
     price: float
-    total_volume: int
+    total_volume: float
     market_cap: float
     high_24h: float
     low_24h: float
