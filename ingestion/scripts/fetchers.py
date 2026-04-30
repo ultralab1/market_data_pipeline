@@ -24,7 +24,7 @@ def fetch_stocks(tickers: list[str], period, interval) -> dict[str, pd.DataFrame
             print(f'Unexpected error for ticker: {ticker} : {e}')
     return data
 
-def fetch_crypto() -> Any | None:
+def fetch_crypto() -> list[dict] | None:
     params = {'vs_currency':'usd',
               'order':'market_cap_desc',
               'per_page':10,

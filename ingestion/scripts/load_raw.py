@@ -1,6 +1,6 @@
 from fetchers import *
 from datetime import datetime
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func, true
 from sqlmodel import Session, create_engine, select
 from sqlalchemy.dialects.postgresql import insert
 from dotenv import load_dotenv
@@ -16,6 +16,15 @@ DB_NAME = os.getenv('DB_NAME')
 url = f'postgresql+psycopg://{USER}:{PASSWORD}@localhost:5433/{DB_NAME}'
 engine = create_engine(url=url, echo=False)
 
+def check_stock_duplicates(ticker: str, data: pd.DataFrame, session: Session) -> bool:
+    stmt = select(func.max(StockPrices.timestamp)).where(StockPrices.ticker == ticker)
+    r = session.exec(stmt).first()
+    if r:
+        if r == data.index.max().tz_convert(None):
+            print('Duplicate data! Skipping ticker')
+            return True
+    return False
+
 def load_stocks(tickers: list, period, interval) -> None:
     try:
         with Session(engine) as session:
@@ -28,21 +37,24 @@ def load_stocks(tickers: list, period, interval) -> None:
                 if data is None or data.empty:
                     print('No data to insert')
                     continue
+                if check_stock_duplicates(ticker, data, session):
+                    continue
                 for index, row in data.iterrows():
                     try:
                         record = StockPrices(
                             ticker=ticker,
-                            timestamp=row.name, # By default, the timestamp was the index
+                            timestamp=datetime.fromisoformat(row.name), # By default, the timestamp was the index
                             open=row['Open'],
                             high=row['High'],
                             low=row['Low'],
                             close=row['Close'],
-                            volume=row['Volume']
+                            volume=int(row['Volume'])
                         )
                         records_to_insert.append(record)
                     except KeyError as e:
                         print(f'No data for {ticker}, skipping')
                         continue
+
             if records_to_insert:
                 stmt = insert(StockPrices).values([r.model_dump() for r in records_to_insert]).on_conflict_do_nothing(
                     index_elements=['ticker', 'timestamp']
@@ -63,7 +75,7 @@ def load_crypto() -> None:
                 try:
                     record = CryptoPrices(
                         symbol=coin['symbol'],
-                        timestamp=coin['last_updated'],
+                        timestamp=datetime.fromisoformat(coin['last_updated']),
                         price=coin['current_price'],
                         total_volume=coin['total_volume'],
                         market_cap=coin['market_cap'],
