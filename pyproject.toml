@@ -1,10 +1,13 @@
 [project]
 name = "market-data-pipeline"
 version = "0.1.0"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.4",
     "apache-airflow>=3.2.1",
+    "dbt-common>=1.37.5",
+    "dbt-core>=1.11.8",
+    "dbt-postgres>=1.10.0",
     "ipykernel>=7.2.0",
     "postgres>=4.0",
     "psycopg[binary]>=3.3.3",
