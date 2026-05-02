@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stage_stock_prices
+    columns:
+      - name: ticker
+        tests:
+          - not_null
+      - name: close_price
+        tests:
+          - not_null
+      - name: fetched_at
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - ticker
+              - fetched_at
+
+  - name: stage_crypto_prices
+    columns:
+      - name: symbol
+        tests:
+          - not_null
+      - name: low_price
+        tests:
+          - not_null
+      - name: fetched_at
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - symbol
+              - fetched_at
