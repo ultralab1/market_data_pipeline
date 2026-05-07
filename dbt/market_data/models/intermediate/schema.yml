@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: int_daily_stock_prices
+  - name: int_daily_crypto_prices
