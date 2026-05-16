@@ -1,4 +1,4 @@
-from fetchers import *
+from ingestion.scripts.fetchers import *
 from datetime import datetime
 from sqlalchemy import func, true
 from sqlmodel import Session, create_engine, select
